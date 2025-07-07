@@ -69,8 +69,8 @@ COPY .claude.json /tmp/.claude.json
 
 # Copy MCP server configuration files (as root)
 COPY mcp-servers.txt /app/
-COPY install-mcp-servers.sh /app/
-RUN chmod +x /app/install-mcp-servers.sh
+COPY install-mcp-servers.sh install-extra-packages.sh /app/
+RUN chmod +x /app/install-mcp-servers.sh /app/install-extra-packages.sh
 
 # Move auth files to proper location before switching user
 RUN cp /tmp/.claude.json /home/claude-user/.claude.json && \
@@ -78,6 +78,9 @@ RUN cp /tmp/.claude.json /home/claude-user/.claude.json && \
 
 # Set proper ownership for everything
 RUN chown -R claude-user /app /home/claude-user
+
+# Install extra packages
+RUN /app/install-extra-packages.sh
 
 # Switch to non-root user
 USER claude-user
@@ -93,6 +96,8 @@ ENV PATH="/home/claude-user/.local/bin:${PATH}"
 
 # Install MCP servers from configuration file
 RUN /app/install-mcp-servers.sh
+
+
 
 # Configure git user during build using host git config passed as build args
 ARG GIT_USER_NAME=""
